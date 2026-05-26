@@ -1,3 +1,7 @@
+from sklearn.linear_model import LogisticRegression
+
+from sklearn.ensemble import RandomForestClassifier
+
 from xgboost import XGBClassifier
 
 
@@ -5,18 +9,30 @@ class ModelTraining:
 
     def __init__(self):
 
-        self.model = XGBClassifier(
+        self.models = {
 
-            n_estimators=300,
+            "LogisticRegression": LogisticRegression(),
 
-            learning_rate=0.05,
+            "RandomForest": RandomForestClassifier(
 
-            max_depth=4,
+                n_estimators=200,
 
-            random_state=42
-        )
+                random_state=42
+            ),
 
-    def train_model(
+            "XGBoost": XGBClassifier(
+
+                n_estimators=300,
+
+                learning_rate=0.05,
+
+                max_depth=4,
+
+                random_state=42
+            )
+        }
+
+    def train_models(
 
         self,
 
@@ -25,14 +41,21 @@ class ModelTraining:
         y_train
     ):
 
-        print("Training Model...")
+        trained_models = {}
 
-        self.model.fit(
+        for name, model in self.models.items():
 
-            X_train,
-            y_train
-        )
+            print(f"\nTraining {name}...")
 
-        print("Model Training Completed")
+            model.fit(
 
-        return self.model
+                X_train,
+
+                y_train
+            )
+
+            trained_models[name] = model
+
+            print(f"{name} Training Completed")
+
+        return trained_models

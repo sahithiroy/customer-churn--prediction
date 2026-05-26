@@ -1,6 +1,6 @@
 # Import pandas library
 import pandas as pd
-
+from src.utils import Utils
 # Create DataIngestion class
 class DataIngestion:
     '''
@@ -13,11 +13,13 @@ class DataIngestion:
     # Constructor
     def __init__(self, file_path):
         self.file_path = file_path
+        self.utils = Utils()
+
 
     def ingest_data(self)-> pd.DataFrame:
 
         # Read CSV file
-        df = pd.read_csv(self.file_path)
+        df= self.utils.load_dataFrame(self.file_path)
 
         # Display first 5 rows
         print("First 5 Rows of Dataset:")

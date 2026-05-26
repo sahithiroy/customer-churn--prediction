@@ -72,8 +72,12 @@ class ModelEvaluation:
         return {
 
             'accuracy': accuracy,
+
             'precision': precision,
+
             'recall': recall,
+
             'f1_score': f1,
+
             'roc_auc': auc
         }

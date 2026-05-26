@@ -1,10 +1,12 @@
 import pandas as pd
-
+from src.utils import Utils
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
+
+import joblib
 
 
 class DataPreprocessing:
@@ -12,109 +14,161 @@ class DataPreprocessing:
     def __init__(self, df):
 
         self.df = df.copy()
+        self.utils = Utils()
 
-    def preprocess(self):
+    def preprocess(self, training=True):
 
         print("Starting Preprocessing...")
 
+        # -----------------------------------------
         # Convert TotalCharges to numeric
+        # -----------------------------------------
+
         self.df['TotalCharges'] = pd.to_numeric(
             self.df['TotalCharges'],
             errors='coerce'
         )
 
         # Fill missing values
-        self.df['TotalCharges'].fillna(
-            self.df['TotalCharges'].median(),
-            inplace=True
+        self.df['TotalCharges'] = self.df[
+            'TotalCharges'
+        ].fillna(
+            self.df['TotalCharges'].median()
         )
 
-        # Encode target
-        self.df['Churn'] = self.df['Churn'].map({
-            'Yes': 1,
-            'No': 0
-        })
+        # -----------------------------------------
+        # TRAINING MODE
+        # -----------------------------------------
 
-        # Split features and target
-        X = self.df.drop('Churn', axis=1)
+        if training:
 
-        y = self.df['Churn']
+            print("Training Mode")
 
-        # Numerical columns
-        numerical_cols = X.select_dtypes(
-            include=['int64', 'float64']
-        ).columns
+            # Encode target column
+            self.df['Churn'] = self.df['Churn'].map({
 
-        # Categorical columns
-        categorical_cols = X.select_dtypes(
-            include=['object']
-        ).columns
+                'Yes': 1,
+                'No': 0
+            })
 
-        # Numerical transformer
-        numerical_transformer = Pipeline(
-            steps=[
-                ('scaler', StandardScaler())
-            ]
-        )
+            # Features and target
+            X = self.df.drop('Churn', axis=1)
 
-        # Categorical transformer
-        categorical_transformer = Pipeline(
-            steps=[
-                (
-                    'encoder',
-                    OneHotEncoder(handle_unknown='ignore')
-                )
-            ]
-        )
+            y = self.df['Churn']
 
-        # Combine preprocessing
-        preprocessor = ColumnTransformer(
+            # Numerical columns
+            numerical_cols = X.select_dtypes(
+                include=['int64', 'float64']
+            ).columns
 
-            transformers=[
+            # Categorical columns
+            categorical_cols = X.select_dtypes(
+                include=['object']
+            ).columns
 
-                (
-                    'num',
-                    numerical_transformer,
-                    numerical_cols
-                ),
+            # Numerical transformer
+            numerical_transformer = Pipeline(
 
-                (
-                    'cat',
-                    categorical_transformer,
-                    categorical_cols
-                )
-            ]
-        )
+                steps=[
 
-        # Train test split
-        X_train, X_test, y_train, y_test = train_test_split(
+                    (
+                        'scaler',
+                        StandardScaler()
+                    )
+                ]
+            )
 
-            X,
-            y,
+            # Categorical transformer
+            categorical_transformer = Pipeline(
 
-            test_size=0.2,
-            random_state=42,
-            stratify=y
-        )
+                steps=[
 
-        # Apply preprocessing
-        X_train_processed = preprocessor.fit_transform(
-            X_train
-        )
+                    (
+                        'encoder',
+                        OneHotEncoder(
+                            handle_unknown='ignore'
+                        )
+                    )
+                ]
+            )
 
-        X_test_processed = preprocessor.transform(
-            X_test
-        )
+            # Combine preprocessing
+            preprocessor = ColumnTransformer(
 
-        print("Preprocessing Completed")
+                transformers=[
 
-        return (
+                    (
+                        'num',
+                        numerical_transformer,
+                        numerical_cols
+                    ),
 
-            X_train_processed,
-            X_test_processed,
+                    (
+                        'cat',
+                        categorical_transformer,
+                        categorical_cols
+                    )
+                ]
+            )
 
-            y_train,
-            y_test,
+            # Train test split
+            X_train, X_test, y_train, y_test = train_test_split(
 
-            preprocessor
-        )
+                X,
+                y,
+
+                test_size=0.2,
+
+                random_state=42,
+
+                stratify=y
+            )
+
+            # Fit + transform training data
+            X_train_processed = preprocessor.fit_transform(
+                X_train
+            )
+
+            # Transform testing data
+            X_test_processed = preprocessor.transform(
+                X_test
+            )
+
+            # Save preprocessor
+            self.utils.save_model(preprocessor, 'models/preprocessor.pkl')
+            
+
+            print("Training Preprocessing Completed")
+
+            return (
+
+                X_train_processed,
+                X_test_processed,
+
+                y_train,
+                y_test,
+
+                preprocessor
+            )
+
+        # -----------------------------------------
+        # PREDICTION MODE
+        # -----------------------------------------
+
+        else:
+
+            print("Prediction Mode")
+
+            # Load saved preprocessor
+            preprocessor = joblib.load(
+                'models/preprocessor.pkl'
+            )
+
+            # Transform new data
+            processed_data = preprocessor.transform(
+                self.df
+            )
+
+            print("Prediction Data Preprocessed")
+
+            return processed_data

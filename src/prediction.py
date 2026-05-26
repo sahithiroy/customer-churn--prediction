@@ -1,11 +1,12 @@
 import joblib
+from src.utils import Utils
 
-
-class PredictionPipeline:
+class Prediction:
 
     def __init__(self):
+        self.utils = Utils()
 
-        self.model = joblib.load(
+        self.model = self.utils.load_model(
             'models/churn_model.pkl'
         )
 
