@@ -11,5 +11,4 @@ joblib
 fastapi 
 uvicorn 
 streamlit 
-pydantic 
-enum
+pydantic

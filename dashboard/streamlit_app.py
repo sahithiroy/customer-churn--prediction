@@ -2,6 +2,8 @@ import streamlit as st
 import requests
 import subprocess
 import time
+
+
 def start_fastapi():
 
     try:
