@@ -31,9 +31,13 @@ class TrainingPipeline:
 
         print("Training Pipeline Started")
 
-        # -----------------------------------------
-        # DATA INGESTION
-        # -----------------------------------------
+        mlflow.set_tracking_uri(
+            "file:./mlruns"
+        )
+
+        mlflow.set_experiment(
+            "Customer Churn Prediction"
+        )
 
         ingestion = DataIngestion(
 
@@ -71,9 +75,6 @@ class TrainingPipeline:
             y_train
         )
 
-        # -----------------------------------------
-        # MODEL EVALUATION
-        # -----------------------------------------
 
         evaluation = ModelEvaluation()
 
