@@ -219,3 +219,11 @@ __marimo__/
 
 mlflow
 mlruns/
+mlflow.db
+__pycache__/
+*.pyc
+mlruns/
+models/
+artifacts/
+.env
+.ipynb_checkpoints/
