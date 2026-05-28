@@ -36,6 +36,17 @@ class DataIngestion:
         # Check null values
         print("\nNull Values:")
         print(df.isnull().sum())
+        if df.isnull().sum().sum() > 0:
+            print("\nNull values found in the dataset. Consider handling them before proceeding.")
+            df = self.fill_null_values(df)
+        
 
         # Return dataframe
         return df
+    def fill_null_values(self, df: pd.DataFrame) -> pd.DataFrame:
+        '''        This method fills null values in the DataFrame with the mean of the respective columns.
+        Parameters:            df (pd.DataFrame): The input DataFrame with potential null values.
+        Returns:            pd.DataFrame: The DataFrame with null values filled.
+        '''
+        # Fill null values with mean of respective columns
+        
