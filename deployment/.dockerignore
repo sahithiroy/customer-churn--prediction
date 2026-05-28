@@ -1,0 +1,15 @@
+__pycache__/ 
+*.pyc 
+*.pyo 
+*.pyd 
+.git/ 
+.gitignore 
+mlruns/ 
+mlflow.db 
+notebooks/ 
+venv/ 
+.env 
+models/ 
+artifacts/ 
+.ipynb_checkpoints/ 
+*.log
